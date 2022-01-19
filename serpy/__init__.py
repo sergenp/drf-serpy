@@ -12,7 +12,7 @@ from serpy.fields import (
 )
 from serpy.serializer import DictSerializer, Serializer
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __author__ = "Clark DuVall, Sergen Pekşen"
 __license__ = "MIT"
 
