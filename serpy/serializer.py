@@ -1,8 +1,16 @@
 import operator
+from collections import Iterable
 
-import six
+from drf_yasg import openapi
 
-from serpy.fields import Field
+from serpy.fields import Field, MethodField
+
+SCHEMA_MAPPER = {
+    str: openapi.TYPE_STRING,
+    int: openapi.TYPE_INTEGER,
+    float: openapi.TYPE_NUMBER,
+    bool: openapi.TYPE_BOOLEAN,
+}
 
 
 class SerializerBase(Field):
@@ -64,7 +72,7 @@ class SerializerMeta(type):
         return real_cls
 
 
-class Serializer(six.with_metaclass(SerializerMeta, SerializerBase)):
+class Serializer(SerializerBase, metaclass=SerializerMeta):
     """:class:`Serializer` is used as a base for custom serializers.
 
     The :class:`Serializer` class is also a subclass of :class:`Field`, and can
@@ -125,10 +133,85 @@ class Serializer(six.with_metaclass(SerializerMeta, SerializerBase)):
 
     def to_value(self, instance):
         fields = self._compiled_fields
+
         if self.many:
             serialize = self._serialize
+            # django orm support
+            if getattr(instance, "iterator", None):
+                return [serialize(o, fields) for o in instance.iterator()]
             return [serialize(o, fields) for o in instance]
         return self._serialize(instance, fields)
+
+    @classmethod
+    def to_schema(cls: SerializerMeta, many=False, *args, **kwargs):
+        properties = {}
+        maps = cls._field_map
+        for name, getter, *_ in cls._compiled_fields:
+            field = maps[name]
+            if isinstance(field, Serializer):
+                if type(field) is Serializer:
+                    field = kwargs.get("serializer")
+
+                if field.many:
+                    properties[name] = openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        title=field.__class__.__name__,
+                        items=openapi.Items(  # noqa
+                            type=openapi.TYPE_OBJECT,
+                            properties=field.to_schema().schema.properties,
+                        ),
+                    )
+                else:
+                    properties[name] = openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        title=field.__class__.__name__,
+                        properties=field.to_schema().schema.properties,
+                    )
+            elif isinstance(field, MethodField):
+                if field.schema_type:
+                    properties[name] = field.get_schema()
+                    continue
+
+                return_type = getter.__annotations__.get("return", None)
+                assert (
+                    return_type is not None
+                ), f"Declare a return type annotation for field `{name}` of {cls}!"
+                if return_type in SCHEMA_MAPPER.keys():
+                    properties[name] = openapi.Schema(type=SCHEMA_MAPPER[return_type])
+                    continue
+
+                # TODO: check if is instance of SerializerMeta
+                #  check if is instance of primitive iterables except str
+                #  check if is instance of typing module types
+
+                if hasattr(return_type, "__origin__"):
+                    if issubclass(return_type.__origin__, Iterable):
+                        arg = return_type.__args__[0]
+                        properties[name] = openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Items(  # noqa
+                                type=SCHEMA_MAPPER.get(arg, openapi.TYPE_STRING)
+                            ),
+                        )
+            else:
+                properties[name] = field.get_schema()
+
+        if many:
+            schema = openapi.Schema(
+                title=cls.__mro__[0].__name__,
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Items(  # noqa
+                    type=openapi.TYPE_OBJECT,
+                    properties=properties,
+                ),
+            )
+        else:
+            schema = openapi.Schema(
+                title=cls.__mro__[0].__name__,
+                type=openapi.TYPE_OBJECT,
+                properties=properties,
+            )
+        return openapi.Response(cls.__mro__[0].__doc__, schema=schema)
 
     @property
     def data(self):

@@ -2,7 +2,7 @@ import importlib
 import types
 from urllib.parse import urljoin
 
-import six
+from drf_yasg import openapi
 
 settings = None  # noqa
 # if django module exist, import settings from it
@@ -34,12 +34,14 @@ class Field(object):
     #: :meth:`Field.as_getter` requires the serializer to be passed in as the
     #: first argument. Otherwise, the object will be the only parameter.
     getter_takes_serializer = False
+    schema_type = None
 
-    def __init__(self, attr=None, call=False, label=None, required=True):
+    def __init__(self, attr=None, call=False, label=None, required=True, schema_type=None):
         self.attr = attr
         self.call = call
         self.label = label
         self.required = required
+        self.schema_type = schema_type or self.schema_type
 
     def to_value(self, value):
         """Transform the serialized value.
@@ -86,29 +88,40 @@ class Field(object):
         """
         return None
 
+    def get_schema(self):
+        if not self.schema_type:
+            return
+        return openapi.Schema(
+            type=self.schema_type,
+        )
+
 
 class StrField(Field):
     """A :class:`Field` that converts the value to a string."""
 
-    to_value = staticmethod(six.text_type)
+    to_value = staticmethod(str)
+    schema_type = openapi.TYPE_STRING
 
 
 class IntField(Field):
     """A :class:`Field` that converts the value to an integer."""
 
     to_value = staticmethod(int)
+    schema_type = openapi.TYPE_INTEGER
 
 
 class FloatField(Field):
     """A :class:`Field` that converts the value to a float."""
 
     to_value = staticmethod(float)
+    schema_type = openapi.TYPE_NUMBER
 
 
 class BoolField(Field):
     """A :class:`Field` that converts the value to a boolean."""
 
     to_value = staticmethod(bool)
+    schema_type = openapi.TYPE_BOOLEAN
 
 
 class MethodField(Field):
@@ -138,6 +151,9 @@ class MethodField(Field):
     getter_takes_serializer = True
 
     def __init__(self, method=None, **kwargs):
+        assert (
+            kwargs.pop("schema_type", None) is None
+        ), f"MethodField doesn't take a schema_type param, use type annotations in your methods to generate schema"
         super(MethodField, self).__init__(**kwargs)
         self.method = method
 
@@ -150,6 +166,8 @@ class MethodField(Field):
 
 class ImageField(Field):
     """A :class:`Field` that converts the value to a image url."""
+
+    schema_type = openapi.TYPE_STRING
 
     def __init__(self, base_url=None, **kwargs):
         super().__init__(**kwargs)
@@ -165,6 +183,9 @@ class ImageField(Field):
 
 class ListField(Field):
     def __init__(self, field_attr, field_type, **kwargs):
+        assert (
+            field_type.schema_type is not None
+        ), f"ListField's field `{field_type}` doesn't have a declared schema type"
         super().__init__(**kwargs)
         self.field_attr = field_attr
         self.field_type = field_type
@@ -174,11 +195,18 @@ class ListField(Field):
             return [ImageField().to_value(getattr(v, self.field_attr, v)) for v in value]
         return [getattr(v, self.field_attr, v) for v in value]
 
+    def get_schema(self):
+        return openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Items(type=self.field_type.schema_type),  # noqa
+        )
+
 
 class DateField(Field):
     """A :class:`Field` that converts the value to a date format."""
 
     date_format = "%Y-%m-%d"
+    schema_type = openapi.TYPE_STRING
 
     def __init__(self, date_format=None, **kwargs):
         super().__init__(**kwargs)
@@ -193,3 +221,4 @@ class DateTimeField(DateField):
     """A :class:`Field` that converts the value to a date time format."""
 
     date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    schema_type = openapi.TYPE_STRING
