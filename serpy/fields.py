@@ -1,5 +1,14 @@
-import six
+import importlib
 import types
+from urllib.parse import urljoin
+
+import six
+
+settings = None  # noqa
+# if django module exist, import settings from it
+if importlib.util.find_spec("django.conf"):  # noqa
+    # importing this will override our settings variable declared in 7th line because settings is an object
+    from django.conf import settings  # noqa
 
 
 class Field(object):
@@ -20,6 +29,7 @@ class Field(object):
     :param bool required: Whether the field is required. If set to ``False``,
         :meth:`Field.to_value` will not be called if the value is ``None``.
     """
+
     #: Set to ``True`` if the value function returned from
     #: :meth:`Field.as_getter` requires the serializer to be passed in as the
     #: first argument. Otherwise, the object will be the only parameter.
@@ -43,6 +53,7 @@ class Field(object):
         :param value: The value fetched from the object being serialized.
         """
         return value
+
     to_value._serpy_base_implementation = True
 
     def _is_to_value_overridden(self):
@@ -50,7 +61,7 @@ class Field(object):
         # If to_value isn't a method, it must have been overridden.
         if not isinstance(to_value, types.MethodType):
             return True
-        return not getattr(to_value, '_serpy_base_implementation', False)
+        return not getattr(to_value, "_serpy_base_implementation", False)
 
     def as_getter(self, serializer_field_name, serializer_cls):
         """Returns a function that fetches an attribute from an object.
@@ -78,21 +89,25 @@ class Field(object):
 
 class StrField(Field):
     """A :class:`Field` that converts the value to a string."""
+
     to_value = staticmethod(six.text_type)
 
 
 class IntField(Field):
     """A :class:`Field` that converts the value to an integer."""
+
     to_value = staticmethod(int)
 
 
 class FloatField(Field):
     """A :class:`Field` that converts the value to a float."""
+
     to_value = staticmethod(float)
 
 
 class BoolField(Field):
     """A :class:`Field` that converts the value to a boolean."""
+
     to_value = staticmethod(bool)
 
 
@@ -119,6 +134,7 @@ class MethodField(Field):
     :param str method: The method on the serializer to call. Defaults to
         ``'get_<field name>'``.
     """
+
     getter_takes_serializer = True
 
     def __init__(self, method=None, **kwargs):
@@ -128,5 +144,52 @@ class MethodField(Field):
     def as_getter(self, serializer_field_name, serializer_cls):
         method_name = self.method
         if method_name is None:
-            method_name = 'get_{0}'.format(serializer_field_name)
+            method_name = "get_{0}".format(serializer_field_name)
         return getattr(serializer_cls, method_name)
+
+
+class ImageField(Field):
+    """A :class:`Field` that converts the value to a image url."""
+
+    def __init__(self, base_url=None, **kwargs):
+        super().__init__(**kwargs)
+        if base_url is None:
+            base_url = getattr(settings, "SERPY_IMAGE_FIELD_DOMAIN", "")
+
+        self.base_url = base_url
+
+    def to_value(self, value):
+        url = getattr(value, "url", value)
+        return urljoin(self.base_url, url)
+
+
+class ListField(Field):
+    def __init__(self, field_attr, field_type, **kwargs):
+        super().__init__(**kwargs)
+        self.field_attr = field_attr
+        self.field_type = field_type
+
+    def to_value(self, value):
+        if self.field_type == ImageField:
+            return [ImageField().to_value(getattr(v, self.field_attr, v)) for v in value]
+        return [getattr(v, self.field_attr, v) for v in value]
+
+
+class DateField(Field):
+    """A :class:`Field` that converts the value to a date format."""
+
+    date_format = "%Y-%m-%d"
+
+    def __init__(self, date_format=None, **kwargs):
+        super().__init__(**kwargs)
+        self.date_format = date_format or self.date_format
+
+    def to_value(self, value):
+        if value:
+            return value.strftime(self.date_format)
+
+
+class DateTimeField(DateField):
+    """A :class:`Field` that converts the value to a date time format."""
+
+    date_format = "%Y-%m-%dT%H:%M:%S.%fZ"

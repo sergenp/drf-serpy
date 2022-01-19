@@ -1,6 +1,8 @@
-from serpy.fields import Field
 import operator
+
 import six
+
+from serpy.fields import Field
 
 
 class SerializerBase(Field):
@@ -20,12 +22,10 @@ def _compile_field_to_tuple(field, name, serializer_cls):
     # Set the field name to a supplied label; defaults to the attribute name.
     name = field.label or name
 
-    return (name, getter, to_value, field.call, field.required,
-            field.getter_takes_serializer)
+    return (name, getter, to_value, field.call, field.required, field.getter_takes_serializer)
 
 
 class SerializerMeta(type):
-
     @staticmethod
     def _get_fields(direct_fields, serializer_cls):
         field_map = {}
@@ -88,14 +88,13 @@ class Serializer(six.with_metaclass(SerializerMeta, SerializerBase)):
     :param context: Currently unused parameter for compatability with Django
         REST Framework serializers.
     """
+
     #: The default getter used if :meth:`Field.as_getter` returns None.
     default_getter = operator.attrgetter
 
-    def __init__(self, instance=None, many=False, data=None, context=None,
-                 **kwargs):
+    def __init__(self, instance=None, many=False, data=None, context=None, **kwargs):
         if data is not None:
-            raise RuntimeError(
-                'serpy serializers do not support input validation')
+            raise RuntimeError("serpy serializers do not support input validation")
 
         super(Serializer, self).__init__(**kwargs)
         self.instance = instance
@@ -160,4 +159,5 @@ class DictSerializer(Serializer):
         FooSerializer(foo).data
         # {'foo': 5, 'bar': 2.2}
     """
+
     default_getter = operator.itemgetter
