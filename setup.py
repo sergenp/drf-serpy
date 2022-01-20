@@ -45,5 +45,6 @@ setup(
         "schema",
         "fast",
     ),
-    packages=find_packages("", exclude=["contrib", "docs", "tests", "benchmarks"]),
+    packages=find_packages(exclude=["contrib", "docs", "tests", "benchmarks"]),
+    include_package_data=True,
 )
