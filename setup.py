@@ -10,14 +10,14 @@ with open(path.join(here, "README.rst"), encoding="utf-8") as f:
 
 setup(
     name="serpy",
-    version="0.3.3",
+    version="0.4.1",
     description="ridiculously fast object serialization",
     long_description=long_description,
-    url="https://github.com/clarkduvall/serpy",
+    url="https://github.com/sergenp/drf-serpy",
     author="Clark DuVall, Sergen Pekşen",
     author_email="clark.duvall@gmail.com, peksensergen@gmail.com",
     license="MIT",
-    install_requires=["six"],
+    install_requires=[],
     test_suite="tests",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -44,5 +44,5 @@ setup(
         "schema",
         "fast",
     ),
-    packages=find_packages(exclude=["contrib", "docs", "tests*", "benchmarks"]),
+    packages=find_packages(exclude=["contrib", "docs", "tests*", "benchmarks", "test_django_app"]),
 )

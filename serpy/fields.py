@@ -1,5 +1,7 @@
 import importlib
 import types
+from datetime import date, datetime, time
+from typing import Any, Callable, List, Type, Union
 from urllib.parse import urljoin
 
 from drf_yasg import openapi
@@ -28,6 +30,8 @@ class Field(object):
         instead of using the attribute name of the field.
     :param bool required: Whether the field is required. If set to ``False``,
         :meth:`Field.to_value` will not be called if the value is ``None``.
+    :param openapi.Schema schema_type: drf-yasg schema type of the Field, if ``None``,
+        schema type of the attribute of the :class:`Field` will be used,
     """
 
     #: Set to ``True`` if the value function returned from
@@ -36,14 +40,21 @@ class Field(object):
     getter_takes_serializer = False
     schema_type = None
 
-    def __init__(self, attr=None, call=False, label=None, required=True, schema_type=None):
+    def __init__(
+        self,
+        attr: str = None,
+        call: bool = False,
+        label: str = None,
+        required: bool = True,
+        schema_type: Type[openapi.Schema] = None,
+    ):
         self.attr = attr
         self.call = call
         self.label = label
         self.required = required
         self.schema_type = schema_type or self.schema_type
 
-    def to_value(self, value):
+    def to_value(self, value: Type[Any]) -> Union[dict, list, bool, str, int, float]:
         """Transform the serialized value.
 
         Override this method to clean and validate values serialized by this
@@ -58,14 +69,14 @@ class Field(object):
 
     to_value._serpy_base_implementation = True
 
-    def _is_to_value_overridden(self):
+    def _is_to_value_overridden(self) -> bool:
         to_value = self.to_value
         # If to_value isn't a method, it must have been overridden.
         if not isinstance(to_value, types.MethodType):
             return True
         return not getattr(to_value, "_serpy_base_implementation", False)
 
-    def as_getter(self, serializer_field_name, serializer_cls):
+    def as_getter(self, serializer_field_name: str, serializer_cls: Type["Serializer"]):
         """Returns a function that fetches an attribute from an object.
 
         Return ``None`` to use the default getter for the serializer defined in
@@ -88,7 +99,12 @@ class Field(object):
         """
         return None
 
-    def get_schema(self):
+    def get_schema(self) -> Union[None, openapi.Schema]:
+        """get the openapi.Schema of the field
+
+        Returns:
+            Union[None, openapi.Schema]: return the openapi.Schema for the given schema_type
+        """
         if not self.schema_type:
             return
         return openapi.Schema(
@@ -134,10 +150,10 @@ class MethodField(Field):
             plus = MethodField()
             minus = MethodField('do_minus')
 
-            def get_plus(self, foo_obj):
+            def get_plus(self, foo_obj) -> int:
                 return foo_obj.bar + foo_obj.baz
 
-            def do_minus(self, foo_obj):
+            def do_minus(self, foo_obj) -> int:
                 return foo_obj.bar - foo_obj.baz
 
         foo = Foo(bar=5, baz=10)
@@ -150,14 +166,14 @@ class MethodField(Field):
 
     getter_takes_serializer = True
 
-    def __init__(self, method=None, **kwargs):
+    def __init__(self, method: str = None, **kwargs):
         assert (
             kwargs.pop("schema_type", None) is None
         ), f"MethodField doesn't take a schema_type param, use type annotations in your methods to generate schema"
         super(MethodField, self).__init__(**kwargs)
         self.method = method
 
-    def as_getter(self, serializer_field_name, serializer_cls):
+    def as_getter(self, serializer_field_name: str, serializer_cls: Type[Field]) -> Callable:
         method_name = self.method
         if method_name is None:
             method_name = "get_{0}".format(serializer_field_name)
@@ -169,20 +185,24 @@ class ImageField(Field):
 
     schema_type = openapi.TYPE_STRING
 
-    def __init__(self, base_url=None, **kwargs):
+    def __init__(self, base_url: str = None, **kwargs):
         super().__init__(**kwargs)
         if base_url is None:
             base_url = getattr(settings, "SERPY_IMAGE_FIELD_DOMAIN", "")
 
         self.base_url = base_url
 
-    def to_value(self, value):
+    def to_value(self, value: Union[Type[Any], str]) -> str:
+        # if given value has "url" attribute get the url from hat attribute
+        # (this happens if the ORM is Django, and the given `value`` is of type ImageFıeld)
+        # otherwise get the value itself
+        # (this happens if you used SQLAlchemy and recorded the image as a relative url to the db)
         url = getattr(value, "url", value)
         return urljoin(self.base_url, url)
 
 
 class ListField(Field):
-    def __init__(self, field_attr, field_type, **kwargs):
+    def __init__(self, field_attr: str, field_type: Type[Field], **kwargs):
         assert (
             field_type.schema_type is not None
         ), f"ListField's field `{field_type}` doesn't have a declared schema type"
@@ -190,12 +210,17 @@ class ListField(Field):
         self.field_attr = field_attr
         self.field_type = field_type
 
-    def to_value(self, value):
+    def to_value(
+        self, value: List[Union[Type[Any], bool, str, float, int]]
+    ) -> List[Union[str, int, bool, float]]:
+        """
+        :param list value: List of self.field_attrs or list of primitive types
+        """
         if self.field_type == ImageField:
             return [ImageField().to_value(getattr(v, self.field_attr, v)) for v in value]
         return [getattr(v, self.field_attr, v) for v in value]
 
-    def get_schema(self):
+    def get_schema(self) -> Type[openapi.Schema]:
         return openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Items(type=self.field_type.schema_type),  # noqa
@@ -208,11 +233,11 @@ class DateField(Field):
     date_format = "%Y-%m-%d"
     schema_type = openapi.TYPE_STRING
 
-    def __init__(self, date_format=None, **kwargs):
+    def __init__(self, date_format: str = None, **kwargs):
         super().__init__(**kwargs)
         self.date_format = date_format or self.date_format
 
-    def to_value(self, value):
+    def to_value(self, value: Union[datetime, time, date]) -> str:
         if value:
             return value.strftime(self.date_format)
 

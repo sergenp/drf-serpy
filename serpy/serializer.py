@@ -1,5 +1,7 @@
 import operator
+import typing
 from collections import Iterable
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from drf_yasg import openapi
 
@@ -17,7 +19,9 @@ class SerializerBase(Field):
     _field_map = {}
 
 
-def _compile_field_to_tuple(field, name, serializer_cls):
+def _compile_field_to_tuple(
+    field: Type[Field], name: str, serializer_cls: Type["Serializer"]
+) -> Tuple:
     getter = field.as_getter(name, serializer_cls)
     if getter is None:
         getter = serializer_cls.default_getter(field.attr or name)
@@ -35,7 +39,7 @@ def _compile_field_to_tuple(field, name, serializer_cls):
 
 class SerializerMeta(type):
     @staticmethod
-    def _get_fields(direct_fields, serializer_cls):
+    def _get_fields(direct_fields: Dict, serializer_cls: Type["Serializer"]):
         field_map = {}
         # Get all the fields from base classes.
         for cls in serializer_cls.__mro__[::-1]:
@@ -45,13 +49,13 @@ class SerializerMeta(type):
         return field_map
 
     @staticmethod
-    def _compile_fields(field_map, serializer_cls):
+    def _compile_fields(field_map: Dict, serializer_cls: Type["Serializer"]):
         return [
             _compile_field_to_tuple(field, name, serializer_cls)
             for name, field in field_map.items()
         ]
 
-    def __new__(cls, name, bases, attrs):
+    def __new__(cls, name: str, bases: Tuple, attrs: Dict) -> Type["SerializerMeta"]:
         # Fields declared directly on the class.
         direct_fields = {}
 
@@ -93,14 +97,22 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
     :param instance: The object or objects to serialize.
     :param bool many: If ``instance`` is a collection of objects, set ``many``
         to ``True`` to serialize to a list.
-    :param context: Currently unused parameter for compatability with Django
+    :param dict context: Currently unused parameter for compatability with Django
         REST Framework serializers.
+        you can manually pass the context in and use it on the functions like as a runtime attribute
     """
 
     #: The default getter used if :meth:`Field.as_getter` returns None.
     default_getter = operator.attrgetter
 
-    def __init__(self, instance=None, many=False, data=None, context=None, **kwargs):
+    def __init__(
+        self,
+        instance: Type[Any] = None,
+        many: bool = False,
+        data: dict = None,
+        context: dict = None,
+        **kwargs,
+    ):
         if data is not None:
             raise RuntimeError("serpy serializers do not support input validation")
 
@@ -108,8 +120,9 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         self.instance = instance
         self.many = many
         self._data = None
+        self.context = context
 
-    def _serialize(self, instance, fields):
+    def _serialize(self, instance: Type[Any], fields: Tuple):
         v = {}
         for name, getter, to_value, call, required, pass_self in fields:
             if pass_self:
@@ -131,24 +144,27 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
 
         return v
 
-    def to_value(self, instance):
-        fields = self._compiled_fields
+    def to_value(self, instance: Type[Any]) -> Union[Dict, List]:
+        fields: Tuple = self._compiled_fields
 
         if self.many:
             serialize = self._serialize
-            # django orm support
+            # django orm support for m2m fields
             if getattr(instance, "iterator", None):
                 return [serialize(o, fields) for o in instance.iterator()]
             return [serialize(o, fields) for o in instance]
         return self._serialize(instance, fields)
 
     @classmethod
-    def to_schema(cls: SerializerMeta, many=False, *args, **kwargs):
+    def to_schema(cls: SerializerMeta, many: bool = False, *args, **kwargs) -> openapi.Response:
         properties = {}
         maps = cls._field_map
         for name, getter, *_ in cls._compiled_fields:
             field = maps[name]
             if isinstance(field, Serializer):
+                # this is for using a blank serializer.Serializer class
+                # in your serpy Serializers to generate schema without
+                #  depending on one single serializer
                 if type(field) is Serializer:
                     field = kwargs.get("serializer")
 
@@ -180,10 +196,15 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
                     properties[name] = openapi.Schema(type=SCHEMA_MAPPER[return_type])
                     continue
 
-                # TODO: check if is instance of SerializerMeta
-                #  check if is instance of primitive iterables except str
-                #  check if is instance of typing module types
+                # TODO: check if the method's return type is:
+                #  instance of SerializerMeta
+                #  instance of primitive iterables except str
+                #  instance of typing module types
 
+                # if the return type is not mapped to primitive types
+                # check if it is of type List[Union[bool,str,int,float]]
+                # if it is a List of any other non-primitive types, it will show up as
+                # List[str] in the openapi schema
                 if hasattr(return_type, "__origin__"):
                     if issubclass(return_type.__origin__, Iterable):
                         arg = return_type.__args__[0]
@@ -214,7 +235,7 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         return openapi.Response(cls.__mro__[0].__doc__, schema=schema)
 
     @property
-    def data(self):
+    def data(self) -> Dict:
         """Get the serialized data from the :class:`Serializer`.
 
         The data will be cached for future accesses.

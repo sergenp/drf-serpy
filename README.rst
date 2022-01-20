@@ -170,6 +170,61 @@ Inheritance Example
     ABSerializer(f).data
     # {'a': 1, 'b': 2}
 
+Swagger Generation Example
+-------------------
+
+Example is available in test_django_app, you can run the app after cloning the project,
+
+.. code-block:: python
+    python test_django_app/manage.py runserver
+
+
+.. code-block:: python
+
+    import serpy
+    from drf_yasg.utils import swagger_auto_schema
+    from rest_framework import status
+    from rest_framework.response import Response
+    from rest_framework.viewsets import ModelViewSet
+
+    from .models import Post
+
+    class ReadOnlyPostSerializer(serpy.Serializer):
+        """
+        Sample description to be used in schema
+        """
+        id = serpy.IntField()
+        author = UserSerializer()
+        title = serpy.StrField()
+        content = serpy.StrField()
+        image = serpy.ImageField()
+        tags = TagSerializer(many=True)
+        created = serpy.DateTimeField()
+        updated = serpy.DateTimeField()
+        dummy = serpy.MethodField()
+        is_completed = serpy.MethodField()
+
+        def get_dummy(self, value) -> List[int]:
+            return list(range(1, 10))
+
+        # typing is necessary to create schema, otherwise method field schema's will default to returning str
+        def get_is_completed(self, value) -> bool:
+            return True
+
+    class PostViewSet(ModelViewSet):
+        queryset = Post.objects.all()
+        serializer_class = drf.PostSerializer
+
+        @swagger_auto_schema(
+            responses={
+                200: ReadOnlyPostSerializer.to_schema(many=True),
+            },
+        )
+        def list(self, request, *args, **kwargs):
+            # get your objects
+            serializer = serps.ReadOnlyPostSerializer(instance=self.queryset.all(), many=True)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 License
 =======
 serpy is free software distributed under the terms of the MIT license. See the
