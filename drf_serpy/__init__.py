@@ -1,4 +1,4 @@
-from serpy.fields import (
+from drf_serpy.fields import (
     BoolField,
     DateField,
     DateTimeField,
@@ -10,9 +10,9 @@ from serpy.fields import (
     MethodField,
     StrField,
 )
-from serpy.serializer import DictSerializer, Serializer
+from drf_serpy.serializer import DictSerializer, Serializer
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 __author__ = "Clark DuVall, Sergen Pekşen"
 __license__ = "MIT"
 

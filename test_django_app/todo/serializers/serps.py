@@ -1,38 +1,38 @@
 from typing import List
 
-import serpy
+import drf_serpy
 
 
-class UserSerializer(serpy.Serializer):
-    id = serpy.IntField()
-    username = serpy.StrField()
-    email = serpy.StrField()
-    first_name = serpy.StrField()
-    last_name = serpy.StrField()
+class UserSerializer(drf_serpy.Serializer):
+    id = drf_serpy.IntField()
+    username = drf_serpy.StrField()
+    email = drf_serpy.StrField()
+    first_name = drf_serpy.StrField()
+    last_name = drf_serpy.StrField()
 
 
-class TagSerializer(serpy.Serializer):
-    id = serpy.IntField()
-    name = serpy.StrField()
-    created = serpy.DateTimeField()
-    updated = serpy.DateTimeField()
+class TagSerializer(drf_serpy.Serializer):
+    id = drf_serpy.IntField()
+    name = drf_serpy.StrField()
+    created = drf_serpy.DateTimeField()
+    updated = drf_serpy.DateTimeField()
 
 
-class ReadOnlyPostSerializer(serpy.Serializer):
+class ReadOnlyPostSerializer(drf_serpy.Serializer):
     """
     Sample description to be used in schema
     """
 
-    id = serpy.IntField()
+    id = drf_serpy.IntField()
     author = UserSerializer()
-    title = serpy.StrField()
-    content = serpy.StrField()
-    image = serpy.ImageField()
+    title = drf_serpy.StrField()
+    content = drf_serpy.StrField()
+    image = drf_serpy.ImageField()
     tags = TagSerializer(many=True)
-    created = serpy.DateTimeField()
-    updated = serpy.DateTimeField()
-    dummy = serpy.MethodField()
-    is_completed = serpy.MethodField()
+    created = drf_serpy.DateTimeField()
+    updated = drf_serpy.DateTimeField()
+    dummy = drf_serpy.MethodField()
+    is_completed = drf_serpy.MethodField()
 
     def get_dummy(self, value) -> List[int]:
         return list(range(1, 10))
@@ -42,10 +42,10 @@ class ReadOnlyPostSerializer(serpy.Serializer):
         return True
 
 
-class CommentSerializer(serpy.Serializer):
-    id = serpy.IntField()
+class CommentSerializer(drf_serpy.Serializer):
+    id = drf_serpy.IntField()
     user = UserSerializer()
     post = ReadOnlyPostSerializer()
-    comment = serpy.StrField()
-    created = serpy.DateTimeField()
-    updated = serpy.DateTimeField()
+    comment = drf_serpy.StrField()
+    created = drf_serpy.DateTimeField()
+    updated = drf_serpy.DateTimeField()

@@ -40,7 +40,7 @@ Examples
 ### Simple Example
 
 ```python
-import serpy
+import drf_serpy as serpy
 
 class Foo(object):
     """The object to be serialized."""
@@ -70,7 +70,7 @@ FooSerializer(fs, many=True).data
 ### Nested Example
 
 ```python
-import serpy
+import drf_serpy as serpy
 
 class Nestee(object):
     """An object nested inside another object."""
@@ -99,7 +99,7 @@ FooSerializer(f).data
 ### Complex Example
 
 ```python
-import serpy
+import drf_serpy as serpy
 
 class Foo(object):
     y = 1
@@ -126,7 +126,7 @@ FooSerializer(f).data
 ### Inheritance Example
 
 ```python
-import serpy
+import drf_serpy as serpy
 
 class Foo(object):
     a = 1
@@ -161,7 +161,7 @@ python test_django_app/manage.py runserver
 ```
 
 ```python
-import serpy
+import drf_serpy as serpy
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response

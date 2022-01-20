@@ -1,11 +1,10 @@
 import operator
-import typing
 from collections import Iterable
 from typing import Any, Dict, List, Tuple, Type, Union
 
 from drf_yasg import openapi
 
-from serpy.fields import Field, MethodField
+from drf_serpy.fields import Field, MethodField
 
 SCHEMA_MAPPER = {
     str: openapi.TYPE_STRING,

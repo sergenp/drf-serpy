@@ -1,14 +1,21 @@
-from .obj import Obj
-from serpy.fields import (
-    Field, MethodField, BoolField, IntField, FloatField, StrField)
 import unittest
+
+from drf_serpy.fields import (
+    BoolField,
+    Field,
+    FloatField,
+    IntField,
+    MethodField,
+    StrField,
+)
+
+from .obj import Obj
 
 
 class TestFields(unittest.TestCase):
-
     def test_to_value_noop(self):
         self.assertEqual(Field().to_value(5), 5)
-        self.assertEqual(Field().to_value('a'), 'a')
+        self.assertEqual(Field().to_value("a"), "a")
         self.assertEqual(Field().to_value(None), None)
 
     def test_as_getter_none(self):
@@ -28,8 +35,8 @@ class TestFields(unittest.TestCase):
 
     def test_str_field(self):
         field = StrField()
-        self.assertEqual(field.to_value('a'), 'a')
-        self.assertEqual(field.to_value(5), '5')
+        self.assertEqual(field.to_value("a"), "a")
+        self.assertEqual(field.to_value(5), "5")
 
     def test_bool_field(self):
         field = BoolField()
@@ -42,12 +49,12 @@ class TestFields(unittest.TestCase):
         field = IntField()
         self.assertEqual(field.to_value(5), 5)
         self.assertEqual(field.to_value(5.4), 5)
-        self.assertEqual(field.to_value('5'), 5)
+        self.assertEqual(field.to_value("5"), 5)
 
     def test_float_field(self):
         field = FloatField()
         self.assertEqual(field.to_value(5.2), 5.2)
-        self.assertEqual(field.to_value('5.5'), 5.5)
+        self.assertEqual(field.to_value("5.5"), 5.5)
 
     def test_method_field(self):
         class FakeSerializer(object):
@@ -59,10 +66,10 @@ class TestFields(unittest.TestCase):
 
         serializer = FakeSerializer()
 
-        fn = MethodField().as_getter('a', serializer)
+        fn = MethodField().as_getter("a", serializer)
         self.assertEqual(fn(Obj(a=3)), 3)
 
-        fn = MethodField('z_sub_1').as_getter('a', serializer)
+        fn = MethodField("z_sub_1").as_getter("a", serializer)
         self.assertEqual(fn(Obj(z=3)), 2)
 
         self.assertTrue(MethodField.getter_takes_serializer)
@@ -72,5 +79,5 @@ class TestFields(unittest.TestCase):
         self.assertEqual(field1.label, "@id")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
