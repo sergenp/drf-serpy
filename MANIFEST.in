@@ -1,1 +1,3 @@
 include LICENSE
+include README.md
+prune test_django_app
