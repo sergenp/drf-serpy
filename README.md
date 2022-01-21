@@ -212,7 +212,9 @@ class PostViewSet(ModelViewSet):
         serializer = serps.ReadOnlyPostSerializer(instance=self.queryset.all(), many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 ```
+Generated Swagger:
 
+![Swagger Gen](https://raw.githubusercontent.com/sergenp/drf-serpy/dev/docs/_static/swagger_gen.PNG)
 
 
 License
