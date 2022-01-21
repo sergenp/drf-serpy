@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>drf_serpy.Fields - drf_serpy</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "drf_serpy.Fields";
+    var mkdocs_page_input_path = "api_reference\\drf_fields.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> drf_serpy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../custom-fields/">Custom Fields</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../performance/">Performance</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../swagger_gen/">Swagger Generation Example</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Api reference</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">drf_serpy.Fields</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#field-objects">Field Objects</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#getter_takes_serializer">getter_takes_serializer</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#to_value">to_value</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#as_getter">as_getter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get_schema">get_schema</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#strfield-objects">StrField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#intfield-objects">IntField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#floatfield-objects">FloatField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#boolfield-objects">BoolField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#methodfield-objects">MethodField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#imagefield-objects">ImageField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#listfield-objects">ListField Objects</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#to_value_1">to_value</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#datefield-objects">DateField Objects</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#datetimefield-objects">DateTimeField Objects</a>
+    </li>
+    </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../drf_serializers/">drf_serpy.Serializer</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">drf_serpy</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Api reference &raquo;</li>
+        
+      
+    
+    <li>drf_serpy.Fields</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="drf_serpyfields">drf_serpy.Fields</h1>
+<ul>
+<li><a href="#drf_serpyfields">drf_serpy.Fields</a></li>
+<li><a href="#field-objects">Field Objects</a><ul>
+<li><a href="#getter_takes_serializer">getter_takes_serializer</a></li>
+<li><a href="#to_value">to_value</a></li>
+<li><a href="#as_getter">as_getter</a></li>
+<li><a href="#get_schema">get_schema</a></li>
+</ul>
+</li>
+<li><a href="#strfield-objects">StrField Objects</a></li>
+<li><a href="#intfield-objects">IntField Objects</a></li>
+<li><a href="#floatfield-objects">FloatField Objects</a></li>
+<li><a href="#boolfield-objects">BoolField Objects</a></li>
+<li><a href="#methodfield-objects">MethodField Objects</a></li>
+<li><a href="#imagefield-objects">ImageField Objects</a></li>
+<li><a href="#listfield-objects">ListField Objects</a><ul>
+<li><a href="#to_value-1">to_value</a></li>
+</ul>
+</li>
+<li><a href="#datefield-objects">DateField Objects</a></li>
+<li><a href="#datetimefield-objects">DateTimeField Objects</a></li>
+</ul>
+<p><a id="drf_serpy.fields.Field"></a></p>
+<h2 id="field-objects">Field Objects</h2>
+<pre><code class="language-python">class Field(object)
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>attr</code> (<code>str</code>): The attribute to get on the object, using the same format
+as <code>operator.attrgetter</code>. If this is not supplied, the name this
+field was assigned to on the serializer will be used.</li>
+<li><code>call</code> (<code>bool</code>): Whether the value should be called after it is retrieved
+from the object. Useful if an object has a method to be serialized.</li>
+<li><code>label</code> (<code>str</code>): A label to use as the name of the serialized field
+instead of using the attribute name of the field.</li>
+<li><code>required</code> (<code>bool</code>): Whether the field is required. If set to <code>False</code>,
+:meth:<code>Field.to_value</code> will not be called if the value is <code>None</code>.</li>
+<li><code>schema_type</code> (<code>openapi.Schema</code>): drf-yasg schema type of the Field, if <code>None</code>,
+schema type of the attribute of the <code>Field</code> will be used,</li>
+</ul>
+<p><a id="drf_serpy.fields.Field.getter_takes_serializer"></a></p>
+<h4 id="getter_takes_serializer">getter_takes_serializer</h4>
+<p>Set to <code>True</code> if the value function returned from
+:meth:<code>Field.as_getter</code> requires the serializer to be passed in as the
+first argument. Otherwise, the object will be the only parameter.</p>
+<p><a id="drf_serpy.fields.Field.to_value"></a></p>
+<h4 id="to_value">to_value</h4>
+<pre><code class="language-python">def to_value(value: Type[Any]) -&gt; Union[dict, list, bool, str, int, float]
+</code></pre>
+<p>Transform the serialized value.</p>
+<p>Override this method to clean and validate values serialized by this
+field. For example to implement an <code>int</code> field: ::</p>
+<pre><code>def to_value(self, value):
+    return int(value)
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code>: The value fetched from the object being serialized.</li>
+</ul>
+<p><a id="drf_serpy.fields.Field.as_getter"></a></p>
+<h4 id="as_getter">as_getter</h4>
+<pre><code class="language-python">def as_getter(serializer_field_name: str, serializer_cls: Type[&quot;Serializer&quot;])
+</code></pre>
+<p>Returns a function that fetches an attribute from an object.</p>
+<p>Return <code>None</code> to use the default getter for the serializer defined in</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>serializer_field_name</code> (<code>str</code>): The name this field was assigned to
+on the serializer.</li>
+<li><code>serializer_cls</code>: The <code>Serializer</code> this field is a part of.</li>
+</ul>
+<p><a id="drf_serpy.fields.Field.get_schema"></a></p>
+<h4 id="get_schema">get_schema</h4>
+<pre><code class="language-python">def get_schema() -&gt; Union[None, openapi.Schema]
+</code></pre>
+<p>get the openapi.Schema of the field</p>
+<p><strong>Returns</strong>:</p>
+<p>Union[None, openapi.Schema]: return the openapi.Schema for the given schema_type</p>
+<p><a id="drf_serpy.fields.StrField"></a></p>
+<h2 id="strfield-objects">StrField Objects</h2>
+<pre><code class="language-python">class StrField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a string.</p>
+<p><a id="drf_serpy.fields.IntField"></a></p>
+<h2 id="intfield-objects">IntField Objects</h2>
+<pre><code class="language-python">class IntField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to an integer.</p>
+<p><a id="drf_serpy.fields.FloatField"></a></p>
+<h2 id="floatfield-objects">FloatField Objects</h2>
+<pre><code class="language-python">class FloatField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a float.</p>
+<p><a id="drf_serpy.fields.BoolField"></a></p>
+<h2 id="boolfield-objects">BoolField Objects</h2>
+<pre><code class="language-python">class BoolField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a boolean.</p>
+<p><a id="drf_serpy.fields.MethodField"></a></p>
+<h2 id="methodfield-objects">MethodField Objects</h2>
+<pre><code class="language-python">class MethodField(Field)
+</code></pre>
+<p>A <code>Field</code> that calls a method on the <code>Serializer</code>.</p>
+<p>This is useful if a <code>Field</code> needs to serialize a value that may come
+from multiple attributes on an object. For example: ::</p>
+<pre><code>class FooSerializer(Serializer):
+    plus = MethodField()
+    minus = MethodField('do_minus')
+
+    def get_plus(self, foo_obj) -&gt; int:
+        return foo_obj.bar + foo_obj.baz
+
+    def do_minus(self, foo_obj) -&gt; int:
+        return foo_obj.bar - foo_obj.baz
+
+foo = Foo(bar=5, baz=10)
+FooSerializer(foo).data
+# {'plus': 15, 'minus': -5}
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>method</code> (<code>str</code>): The method on the serializer to call. Defaults to
+<code>'get_&lt;field name&gt;'</code>.</li>
+</ul>
+<p><a id="drf_serpy.fields.ImageField"></a></p>
+<h2 id="imagefield-objects">ImageField Objects</h2>
+<pre><code class="language-python">class ImageField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a image url.</p>
+<p><a id="drf_serpy.fields.ListField"></a></p>
+<h2 id="listfield-objects">ListField Objects</h2>
+<pre><code class="language-python">class ListField(Field)
+</code></pre>
+<p><a id="drf_serpy.fields.ListField.to_value"></a></p>
+<h4 id="to_value_1">to_value</h4>
+<pre><code class="language-python">def to_value(value: List[Union[Type[Any], bool, str, float, int]]) -&gt; List[Union[str, int, bool, float]]
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> (<code>list</code>): List of self.field_attrs or list of primitive types</li>
+</ul>
+<p><a id="drf_serpy.fields.DateField"></a></p>
+<h2 id="datefield-objects">DateField Objects</h2>
+<pre><code class="language-python">class DateField(Field)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a date format.</p>
+<p><a id="drf_serpy.fields.DateTimeField"></a></p>
+<h2 id="datetimefield-objects">DateTimeField Objects</h2>
+<pre><code class="language-python">class DateTimeField(DateField)
+</code></pre>
+<p>A <code>Field</code> that converts the value to a date time format.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../drf_serializers/" class="btn btn-neutral float-right" title="drf_serpy.Serializer">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../swagger_gen/" class="btn btn-neutral" title="Swagger Generation Example"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../swagger_gen/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../drf_serializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

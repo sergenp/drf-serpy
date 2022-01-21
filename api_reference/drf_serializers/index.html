@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>drf_serpy.Serializer - drf_serpy</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "drf_serpy.Serializer";
+    var mkdocs_page_input_path = "api_reference\\drf_serializers.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> drf_serpy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../custom-fields/">Custom Fields</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../performance/">Performance</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../swagger_gen/">Swagger Generation Example</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Api reference</span></p>
+                <ul class="current">
+                    <li class="toctree-l1"><a class="reference internal" href="../drf_fields/">drf_serpy.Fields</a>
+                    </li>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">drf_serpy.Serializer</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#serializer-objects">Serializer Objects</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#default_getter">default_getter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data">data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#to_schema">to_schema</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dictserializer-objects">DictSerializer Objects</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">drf_serpy</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Api reference &raquo;</li>
+        
+      
+    
+    <li>drf_serpy.Serializer</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="drf_serpyserializer">drf_serpy.Serializer</h1>
+<ul>
+<li><a href="#drf_serpyserializer">drf_serpy.Serializer</a></li>
+<li><a href="#serializer-objects">Serializer Objects</a><ul>
+<li><a href="#default_getter">default_getter</a></li>
+<li><a href="#data">data</a></li>
+<li><a href="#to_schema">to_schema</a></li>
+</ul>
+</li>
+<li><a href="#dictserializer-objects">DictSerializer Objects</a></li>
+</ul>
+<p><a id="drf_serpy.serializer"></a></p>
+<h2 id="serializer-objects">Serializer Objects</h2>
+<pre><code class="language-python">class Serializer(SerializerBase, metaclass=SerializerMeta)
+</code></pre>
+<p>Serializer` is used as a base for custom serializers.</p>
+<p>The <code>Serializer</code> class is also a subclass of <code>Field</code>, and can
+be used as a <code>Field</code> to create nested schemas. A serializer is
+defined by subclassing <code>Serializer</code> and adding each <code>Field</code>
+as a class variable:</p>
+<p>Example:</p>
+<pre><code class="language-python">class FooSerializer(Serializer):
+    foo = Field()
+    bar = Field()
+
+foo = Foo(foo='hello', bar=5)
+FooSerializer(foo).data
+# {'foo': 'hello', 'bar': 5}
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>instance</code>: The object or objects to serialize.</li>
+<li><code>many</code> (<code>bool</code>): If <code>instance</code> is a collection of objects, set <code>many</code>
+to <code>True</code> to serialize to a list.</li>
+<li><code>context</code> (<code>dict</code>): Currently unused parameter for compatability with Django
+REST Framework serializers.
+you can manually pass the context in and use it on the functions like as a runtime attribute</li>
+</ul>
+<p><a id="drf_serpy.serializer.Serializer.default_getter"></a></p>
+<h4 id="default_getter">default_getter</h4>
+<p>The default getter used if :meth:<code>Field.as_getter</code> returns None.</p>
+<p><a id="drf_serpy.serializer.Serializer.data"></a></p>
+<h4 id="data">data</h4>
+<pre><code class="language-python">@property
+def data() -&gt; Dict
+</code></pre>
+<p>Get the serialized data from the <code>Serializer</code>.</p>
+<p>The data will be cached for future accesses.</p>
+<h4 id="to_schema">to_schema</h4>
+<pre><code class="language-python">@classmethod
+def to_schema(cls: SerializerMeta, many: bool = False, *args, **kwargs) -&gt; openapi.Response:
+</code></pre>
+<p>Convert <code>Serializer</code> to <code>openapi.Schema</code></p>
+<p><a id="drf_serpy.serializer.DictSerializer"></a></p>
+<h2 id="dictserializer-objects">DictSerializer Objects</h2>
+<pre><code class="language-python">class DictSerializer(Serializer)
+</code></pre>
+<p><code>DictSerializer</code> serializes python <code>dicts</code> instead of objects.</p>
+<p>Instead of the serializer's fields fetching data using
+<code>operator.attrgetter</code>, <code>DictSerializer</code> uses
+<code>operator.itemgetter</code>.</p>
+<p>Example:</p>
+<pre><code class="language-py">class FooSerializer(DictSerializer):
+foo = IntField()
+bar = FloatField()
+
+foo = {'foo': '5', 'bar': '2.2'}
+FooSerializer(foo).data
+# {'foo': 5, 'bar': 2.2}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../drf_fields/" class="btn btn-neutral" title="drf_serpy.Fields"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../drf_fields/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

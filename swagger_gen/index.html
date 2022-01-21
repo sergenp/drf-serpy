@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Swagger Generation Example - drf_serpy</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Swagger Generation Example";
+    var mkdocs_page_input_path = "swagger_gen.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> drf_serpy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../custom-fields/">Custom Fields</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../performance/">Performance</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Swagger Generation Example</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#swagger-generation">Swagger Generation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#generic-serializer-swagger-generation">Generic serializer swagger generation</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Api reference</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../api_reference/drf_fields/">drf_serpy.Fields</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../api_reference/drf_serializers/">drf_serpy.Serializer</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">drf_serpy</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Swagger Generation Example</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="swagger-generation-example">Swagger Generation Example</h1>
+<hr />
+<p>Example is available in test_django_app, you can run the app after
+cloning the project.</p>
+<pre><code class="language-python">python test_django_app/manage.py runserver
+</code></pre>
+<h2 id="swagger-generation">Swagger Generation</h2>
+<p>Note that the swagger generation is for <code>drf_serpy.Serializer</code> and doesn't care about the inputted model.
+i.e. the <code>openapi.Schema</code> will be generated based on the serializer attributes.</p>
+<pre><code class="language-python">import drf_serpy as serpy
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+
+from .models import Post 
+from .serializers import drf, serps
+
+# serps.ReadOnlyPostSerializer is this:
+# class ReadOnlyPostSerializer(serpy.Serializer):
+#     &quot;&quot;&quot;
+#     Sample description to be used in schema
+#     &quot;&quot;&quot;
+#     id = serpy.IntField()
+#     author = UserSerializer()
+#     title = serpy.StrField()
+#     content = serpy.StrField()
+#     image = serpy.ImageField()
+#     tags = TagSerializer(many=True)
+#     created = serpy.DateTimeField()
+#     updated = serpy.DateTimeField()
+#     dummy = serpy.MethodField()
+#     is_completed = serpy.MethodField()
+
+#     def get_dummy(self, value) -&gt; List[int]:
+#         return list(range(1, 10))
+
+#     # typing is necessary to create schema, otherwise this will throw an assertion error
+#     def get_is_completed(self, value) -&gt; bool:
+#         return True
+
+class PostViewSet(ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = drf.PostSerializer
+
+    @swagger_auto_schema(
+        responses={
+            200: ReadOnlyPostSerializer.to_schema(many=True),
+        },
+    )
+    def list(self, request, *args, **kwargs):
+        # get your objects
+        serializer = serps.ReadOnlyPostSerializer(instance=self.queryset.all(), many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+</code></pre>
+<p>Generated Swagger:
+<img alt="Swagger Gen" src="../imgs/swagger_gen.png" /></p>
+<h2 id="generic-serializer-swagger-generation">Generic serializer swagger generation</h2>
+<pre><code class="language-python">
+# class CommentSerializer(drf_serpy.Serializer):
+#     id = drf_serpy.IntField()
+#     user = UserSerializer()
+#     post = ReadOnlyPostSerializer()
+#     comment = drf_serpy.StrField()
+#     created = drf_serpy.DateTimeField()
+#     updated = drf_serpy.DateTimeField()
+
+
+# class LinkSerializer(drf_serpy.Serializer):
+#     next = drf_serpy.StrField()
+#     previous = drf_serpy.StrField()
+
+
+# class PaginationSerializer(drf_serpy.Serializer):
+#     links = LinkSerializer()
+#     count = drf_serpy.IntField()
+#     current_page = drf_serpy.IntField()
+#     page_size = drf_serpy.IntField()
+#     results = drf_serpy.Serializer()
+
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = drf.CommentSerializer
+
+    @swagger_auto_schema(
+        responses={
+            200: PaginationSerializer.to_schema(serializer=CommentSerializer(many=True)),
+        },
+    )
+    def list(self, request, *args, **kwargs):
+        self.serializer_class = serps.CommentSerializer
+        return super().list(request, *args, **kwargs)
+</code></pre>
+<p>Generated Swagger:</p>
+<p><img alt="Swagger Gen Pagination" src="../imgs/swagger_gen_pagination.png" /></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../api_reference/drf_fields/" class="btn btn-neutral float-right" title="drf_serpy.Fields">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../performance/" class="btn btn-neutral" title="Performance"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../performance/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../api_reference/drf_fields/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
