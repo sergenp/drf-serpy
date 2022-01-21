@@ -49,3 +49,16 @@ class CommentSerializer(drf_serpy.Serializer):
     comment = drf_serpy.StrField()
     created = drf_serpy.DateTimeField()
     updated = drf_serpy.DateTimeField()
+
+
+class LinkSerializer(drf_serpy.Serializer):
+    next = drf_serpy.StrField()
+    previous = drf_serpy.StrField()
+
+
+class PaginationSerializer(drf_serpy.Serializer):
+    links = LinkSerializer()
+    count = drf_serpy.IntField()
+    current_page = drf_serpy.IntField()
+    page_size = drf_serpy.IntField()
+    results = drf_serpy.Serializer()

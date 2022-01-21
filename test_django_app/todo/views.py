@@ -3,8 +3,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Comment, Post, User
+from .models import Comment, Post
 from .serializers import drf, serps
+from .serializers.serps import CommentSerializer, PaginationSerializer
 
 
 class PostViewSet(ModelViewSet):
@@ -46,7 +47,7 @@ class CommentViewSet(ModelViewSet):
 
     @swagger_auto_schema(
         responses={
-            200: serps.CommentSerializer.to_schema(many=True),
+            200: PaginationSerializer.to_schema(serializer=CommentSerializer(many=True)),
         },
     )
     def list(self, request, *args, **kwargs):
