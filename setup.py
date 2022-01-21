@@ -10,10 +10,10 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="drf-serpy",
-    version="0.4.3",
-    description="ridiculously fast object serialization",
-    long_description=long_description,
+    version="0.4.4",
+    description="""ridiculously fast object serialization""",
     long_description_content_type="text/markdown",
+    long_description=long_description,
     url="https://github.com/sergenp/drf-serpy",
     author="Clark DuVall, Sergen Pekşen",
     author_email="clark.duvall@gmail.com, peksensergen@gmail.com",
@@ -32,7 +32,7 @@ setup(
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    keywords=(
+    keywords=[
         "serialization",
         "rest",
         "json",
@@ -42,7 +42,7 @@ setup(
         "validation",
         "schema",
         "fast",
-    ),
-    packages=find_packages(exclude=["contrib", "docs", "tests", "benchmarks"]),
+    ],
+    packages=find_packages(exclude=["contrib", "docs", "tests", "benchmarks", "site"]),
     include_package_data=True,
 )
