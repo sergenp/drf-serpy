@@ -4,7 +4,7 @@
 
 [![Coveralls](https://coveralls.io/repos/clarkduvall/serpy/badge.svg?branch=master)](https://coveralls.io/r/clarkduvall/serpy?branch=master)
 
-[![Documentation Status](https://readthedocs.org/projects/serpy/badge/?version=latest)](https://readthedocs.org/projects/serpy/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/drf-serpy/badge/?version=latest)](https://readthedocs.org/projects/drf-serpy/?badge=latest)
 
 [![PyPI version](https://badge.fury.io/py/drf-serpy.svg)](https://badge.fury.io/py/drf-serpy)
 
@@ -26,7 +26,7 @@ If you want a feature, send a pull request!
 Documentation
 -------------
 
-Full documentation at: <http://serpy.readthedocs.org/en/latest/>
+Full documentation at: <https://drf-serpy.readthedocs.io/en/latest/>
 
 Installation
 ------------
@@ -216,7 +216,7 @@ class PostViewSet(ModelViewSet):
 ```
 
 Generated Swagger:
-![Swagger Gen](https://raw.githubusercontent.com/sergenp/drf-serpy/dev/docs/_static/swagger_gen.PNG)
+![Swagger Gen](https://drf-serpy.readthedocs.io/en/latest/imgs/swagger_gen.png)
 
 #### Generic serializer swagger generation example:
 
@@ -259,7 +259,7 @@ class CommentViewSet(ModelViewSet):
     
 Generated Swagger:
 
-![Swagger Gen Pagination](https://raw.githubusercontent.com/sergenp/drf-serpy/dev/docs/_static/swagger_gen_pagination.PNG)
+![Swagger Gen Pagination](https://drf-serpy.readthedocs.io/en/latest/imgs/swagger_gen_pagination.png)
 
 
 License

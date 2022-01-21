@@ -37,12 +37,13 @@ pip-delete-this-directory.txt
 .cache
 nosetests.xml
 coverage.xml
-
 # Translations
 *.mo
 
 # Sphinx documentation
 docs/_build/
+# mkdocs gh-pages build
+site/
 
 # Vim swap files
 *.swp
