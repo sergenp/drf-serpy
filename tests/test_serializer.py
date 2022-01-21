@@ -1,3 +1,6 @@
+from django.conf import settings
+
+settings.configure()
 import unittest
 
 from drf_serpy.fields import Field, FloatField, IntField, MethodField, StrField

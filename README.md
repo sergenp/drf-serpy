@@ -1,6 +1,5 @@
 ## drf-serpy: ridiculously fast object serialization
 
-
 [![Travis-CI](https://travis-ci.org/clarkduvall/serpy.svg?branch=master)](https://travis-ci.org/clarkduvall/serpy?branch=master)
 
 [![Coveralls](https://coveralls.io/repos/clarkduvall/serpy/badge.svg?branch=master)](https://coveralls.io/r/clarkduvall/serpy?branch=master)
@@ -11,7 +10,9 @@
 
 **drf-serpy** is a super simple object serialization framework built for speed. **drf-serpy** serializes complex datatypes (Django Models, custom classes, ...) to simple native types (dicts, lists, strings, ...). The native types can easily be converted to JSON or any other format needed.
 
-The goal of **drf-serpy** is to be able to do this *simply*, *reliably*, and *quickly*. Since serializers are class based, they can be combined, extended and customized with very little code duplication. Compared to other popular Python serialization frameworks like [marshmallow](http://marshmallow.readthedocs.org) or [Django Rest Framework Serializers](http://www.django-rest-framework.org/api-guide/serializers/)
+The goal of **drf-serpy** is to be able to do this *simply*, *reliably*, and *quickly*. Since serializers are class based, they can be combined, extended and customized with very little code duplication. This project aims to replace the DRF serializer in terms of *deserialization*.
+
+ Compared to other popular Python serialization frameworks like [Django Rest Framework Serializers](http://www.django-rest-framework.org/api-guide/serializers/)
 **drf-serpy** is at least an [order of magnitude](http://serpy.readthedocs.org/en/latest/performance.html)
 faster.
 
@@ -29,6 +30,9 @@ Full documentation at: <http://serpy.readthedocs.org/en/latest/>
 
 Installation
 ------------
+
+Note that this project is aimed for **Django Rest Framework** and does not intend to provide deserialization to other frameworks. Original [serpy](https://github.com repository can be used for such cases. This is mainly because of the added *drf-yasg* for swagger generation for the *drf-serpy serializers*.
+
 
 ```bash
 $ pip install drf-serpy
@@ -160,6 +164,9 @@ cloning the project.
 python test_django_app/manage.py runserver
 ```
 
+Note that the swagger generation is for `drf_serpy.Serializer` and doesn't care about the inputted model.
+i.e. the `openapi.Schema` will be generated based on the serializer attributes.
+
 ```python
 import drf_serpy as serpy
 from drf_yasg.utils import swagger_auto_schema
@@ -206,8 +213,10 @@ class PostViewSet(ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 ```
 
+
+
 License
 -------
 
-serpy is free software distributed under the terms of the MIT license.
+drf-serpy is free software distributed under the terms of the MIT license.
 See the [LICENSE](https://github.com/sergenp/drf-serpy/blob/master/LICENSE) file.

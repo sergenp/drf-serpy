@@ -1,5 +1,9 @@
 import unittest
 
+from django.conf import settings
+
+settings.configure()
+
 from drf_serpy.fields import (
     BoolField,
     Field,

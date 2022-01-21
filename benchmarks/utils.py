@@ -14,13 +14,13 @@ class Obj(object):
             setattr(self, k, v)
 
 
-def write_csv(name, data, drf, marshmallow, serpy, size):
+def write_csv(name, data, drf, serpy, size):
     repetitions = 10
     with open("{0}.csv".format(name), "w+") as f:
-        f.write(",DRF,Marshmallow,serpy\n")
+        f.write(",DRF,serpy\n")
         for i in range(10 * size, 101 * size, 10 * size):
             f.write(str(i * repetitions))
-            for serializer in (drf, marshmallow, serpy):
+            for serializer in (drf, serpy):
                 f.write(",")
                 f.write(str(benchmark(serializer, repetitions, i, data=data)))
             f.write("\n")
@@ -28,9 +28,7 @@ def write_csv(name, data, drf, marshmallow, serpy, size):
 
 def benchmark(serializer_fn, repetitions, num_objs=1, data=None):
     total_objs = repetitions * num_objs
-    if not isinstance(serializer_fn, type):
-        library = "Marshmallow"
-    elif issubclass(serializer_fn, drf_serpy.Serializer):
+    if issubclass(serializer_fn, drf_serpy.Serializer):
         library = "serpy"
     elif issubclass(serializer_fn, rf_serializers.Serializer):
         library = "Django Rest Framework"
