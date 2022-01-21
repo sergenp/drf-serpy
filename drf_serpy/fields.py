@@ -14,12 +14,12 @@ if importlib.util.find_spec("django.conf"):  # noqa
 
 
 class Field(object):
-    """:class:`Field` is used to define what attributes will be serialized.
+    """`Field` is used to define what attributes will be serialized.
 
-    A :class:`Field` maps a property or function on an object to a value in the
+    A `Field` maps a property or function on an object to a value in the
     serialized result. Subclass this to make custom fields. For most simple
-    cases, overriding :meth:`Field.to_value` should give enough flexibility. If
-    more control is needed, override :meth:`Field.as_getter`.
+    cases, overriding `Field.to_value` should give enough flexibility. If
+    more control is needed, override `Field.as_getter`.
 
     :param str attr: The attribute to get on the object, using the same format
         as ``operator.attrgetter``. If this is not supplied, the name this
@@ -29,13 +29,13 @@ class Field(object):
     :param str label: A label to use as the name of the serialized field
         instead of using the attribute name of the field.
     :param bool required: Whether the field is required. If set to ``False``,
-        :meth:`Field.to_value` will not be called if the value is ``None``.
+        `Field.to_value` will not be called if the value is ``None``.
     :param openapi.Schema schema_type: drf-yasg schema type of the Field, if ``None``,
-        schema type of the attribute of the :class:`Field` will be used,
+        schema type of the attribute of the `Field` will be used,
     """
 
     #: Set to ``True`` if the value function returned from
-    #: :meth:`Field.as_getter` requires the serializer to be passed in as the
+    #: `Field.as_getter` requires the serializer to be passed in as the
     #: first argument. Otherwise, the object will be the only parameter.
     getter_takes_serializer = False
     schema_type = None
@@ -82,20 +82,20 @@ class Field(object):
         Return ``None`` to use the default getter for the serializer defined in
         :attr:`Serializer.default_getter`.
 
-        When a :class:`Serializer` is defined, each :class:`Field` will be
+        When a `Serializer` is defined, each `Field` will be
         converted into a getter function using this method. During
         serialization, each getter will be called with the object being
         serialized, and the return value will be passed through
-        :meth:`Field.to_value`.
+        `Field.to_value`.
 
-        If a :class:`Field` has ``getter_takes_serializer = True``, then the
+        If a `Field` has ``getter_takes_serializer = True``, then the
         getter returned from this method will be called with the
-        :class:`Serializer` instance as the first argument, and the object
+        `Serializer` instance as the first argument, and the object
         being serialized as the second.
 
         :param str serializer_field_name: The name this field was assigned to
             on the serializer.
-        :param serializer_cls: The :class:`Serializer` this field is a part of.
+        :param serializer_cls: The `Serializer` this field is a part of.
         """
         return None
 
@@ -113,53 +113,53 @@ class Field(object):
 
 
 class StrField(Field):
-    """A :class:`Field` that converts the value to a string."""
+    """A `Field` that converts the value to a string."""
 
     to_value = staticmethod(str)
     schema_type = openapi.TYPE_STRING
 
 
 class IntField(Field):
-    """A :class:`Field` that converts the value to an integer."""
+    """A `Field` that converts the value to an integer."""
 
     to_value = staticmethod(int)
     schema_type = openapi.TYPE_INTEGER
 
 
 class FloatField(Field):
-    """A :class:`Field` that converts the value to a float."""
+    """A `Field` that converts the value to a float."""
 
     to_value = staticmethod(float)
     schema_type = openapi.TYPE_NUMBER
 
 
 class BoolField(Field):
-    """A :class:`Field` that converts the value to a boolean."""
+    """A `Field` that converts the value to a boolean."""
 
     to_value = staticmethod(bool)
     schema_type = openapi.TYPE_BOOLEAN
 
 
 class MethodField(Field):
-    """A :class:`Field` that calls a method on the :class:`Serializer`.
+    """A `Field` that calls a method on the `Serializer`.
 
-    This is useful if a :class:`Field` needs to serialize a value that may come
-    from multiple attributes on an object. For example: ::
+    This is useful if a `Field` needs to serialize a value that may come
+    from multiple attributes on an object. For example:
+    ```py
+    class FooSerializer(Serializer):
+        plus = MethodField()
+        minus = MethodField('do_minus')
 
-        class FooSerializer(Serializer):
-            plus = MethodField()
-            minus = MethodField('do_minus')
+        def get_plus(self, foo_obj) -> int:
+            return foo_obj.bar + foo_obj.baz
 
-            def get_plus(self, foo_obj) -> int:
-                return foo_obj.bar + foo_obj.baz
+        def do_minus(self, foo_obj) -> int:
+            return foo_obj.bar - foo_obj.baz
 
-            def do_minus(self, foo_obj) -> int:
-                return foo_obj.bar - foo_obj.baz
-
-        foo = Foo(bar=5, baz=10)
-        FooSerializer(foo).data
-        # {'plus': 15, 'minus': -5}
-
+    foo = Foo(bar=5, baz=10)
+    FooSerializer(foo).data
+    # {'plus': 15, 'minus': -5}
+    ```
     :param str method: The method on the serializer to call. Defaults to
         ``'get_<field name>'``.
     """
@@ -181,7 +181,7 @@ class MethodField(Field):
 
 
 class ImageField(Field):
-    """A :class:`Field` that converts the value to a image url."""
+    """A `Field` that converts the value to a image url."""
 
     schema_type = openapi.TYPE_STRING
 
@@ -228,7 +228,7 @@ class ListField(Field):
 
 
 class DateField(Field):
-    """A :class:`Field` that converts the value to a date format."""
+    """A `Field` that converts the value to a date format."""
 
     date_format = "%Y-%m-%d"
     schema_type = openapi.TYPE_STRING
@@ -243,7 +243,7 @@ class DateField(Field):
 
 
 class DateTimeField(DateField):
-    """A :class:`Field` that converts the value to a date time format."""
+    """A `Field` that converts the value to a date time format."""
 
     date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
     schema_type = openapi.TYPE_STRING

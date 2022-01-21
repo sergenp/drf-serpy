@@ -76,23 +76,23 @@ class SerializerMeta(type):
 
 
 class Serializer(SerializerBase, metaclass=SerializerMeta):
-    """:class:`Serializer` is used as a base for custom serializers.
+    """`Serializer` is used as a base for custom serializers.
 
-    The :class:`Serializer` class is also a subclass of :class:`Field`, and can
-    be used as a :class:`Field` to create nested schemas. A serializer is
-    defined by subclassing :class:`Serializer` and adding each :class:`Field`
+    The `Serializer` class is also a subclass of `Field`, and can
+    be used as a `Field` to create nested schemas. A serializer is
+    defined by subclassing `Serializer` and adding each `Field`
     as a class variable:
 
-    Example: ::
+    Example:
+    ````py
+    class FooSerializer(Serializer):
+        foo = Field()
+        bar = Field()
 
-        class FooSerializer(Serializer):
-            foo = Field()
-            bar = Field()
-
-        foo = Foo(foo='hello', bar=5)
-        FooSerializer(foo).data
-        # {'foo': 'hello', 'bar': 5}
-
+    foo = Foo(foo='hello', bar=5)
+    FooSerializer(foo).data
+    # {'foo': 'hello', 'bar': 5}
+    ```
     :param instance: The object or objects to serialize.
     :param bool many: If ``instance`` is a collection of objects, set ``many``
         to ``True`` to serialize to a list.
@@ -235,7 +235,7 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
 
     @property
     def data(self) -> Dict:
-        """Get the serialized data from the :class:`Serializer`.
+        """Get the serialized data from the `Serializer`.
 
         The data will be cached for future accesses.
         """
@@ -246,21 +246,22 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
 
 
 class DictSerializer(Serializer):
-    """:class:`DictSerializer` serializes python ``dicts`` instead of objects.
+    """`DictSerializer` serializes python ``dicts`` instead of objects.
 
     Instead of the serializer's fields fetching data using
-    ``operator.attrgetter``, :class:`DictSerializer` uses
+    ``operator.attrgetter``, `DictSerializer` uses
     ``operator.itemgetter``.
 
-    Example: ::
+    Example:
+    ```py
+    class FooSerializer(DictSerializer):
+        foo = IntField()
+        bar = FloatField()
 
-        class FooSerializer(DictSerializer):
-            foo = IntField()
-            bar = FloatField()
-
-        foo = {'foo': '5', 'bar': '2.2'}
-        FooSerializer(foo).data
-        # {'foo': 5, 'bar': 2.2}
+    foo = {'foo': '5', 'bar': '2.2'}
+    FooSerializer(foo).data
+    # {'foo': 5, 'bar': 2.2}
+    ```
     """
 
     default_getter = operator.itemgetter
