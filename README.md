@@ -31,7 +31,7 @@ Full documentation at: <http://serpy.readthedocs.org/en/latest/>
 Installation
 ------------
 
-Note that this project is aimed for **Django Rest Framework** and does not intend to provide deserialization to other frameworks. Original [serpy](https://github.com repository can be used for such cases. This is mainly because of the added *drf-yasg* for swagger generation for the *drf-serpy serializers*.
+Note that this project is aimed for **Django Rest Framework** and does not intend to provide deserialization to other frameworks. Original [serpy](https://github.com/clarkduvall/serpy) repository can be used for such cases. This is mainly because of the added *drf-yasg* for swagger generation for the *drf-serpy serializers*.
 
 
 ```bash
