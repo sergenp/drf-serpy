@@ -2,8 +2,13 @@ from typing import List
 
 import drf_serpy
 
+from ..models import Comment, User
+
 
 class UserSerializer(drf_serpy.Serializer):
+    class Meta:
+        model = User
+
     id = drf_serpy.IntField()
     username = drf_serpy.StrField()
     email = drf_serpy.StrField()
@@ -43,12 +48,22 @@ class ReadOnlyPostSerializer(drf_serpy.Serializer):
 
 
 class CommentSerializer(drf_serpy.Serializer):
+    class Meta:
+        model = Comment
+
     id = drf_serpy.IntField()
     user = UserSerializer()
     post = ReadOnlyPostSerializer()
     comment = drf_serpy.StrField()
-    created = drf_serpy.DateTimeField()
-    updated = drf_serpy.DateTimeField()
+    created = drf_serpy.DateTimeField
+    updated = drf_serpy.DateTimeField
+
+
+class CommentSerializerWrite(drf_serpy.Serializer):
+    class Meta:
+        model = Comment
+
+    comment = drf_serpy.StrField()
 
 
 class LinkSerializer(drf_serpy.Serializer):

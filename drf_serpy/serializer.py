@@ -15,15 +15,31 @@ SCHEMA_MAPPER = {
 
 
 class SerializerBase(Field):
-    _field_map = {}
+    pass
 
 
-def _compile_field_to_tuple(
+@staticmethod
+def attrsetter(attr_name):
+    """
+    attrsetter(attr) --> attrsetter object
+
+    Return a callable object that sets the given attribute(s) on its first
+    operand as the second operand
+    After f = attrsetter('name'), the call f(o, val) executes: o.name = val
+    """
+
+    def _attrsetter(obj, val):
+        setattr(obj, attr_name, val)
+
+    return _attrsetter
+
+
+def _compile_read_field_to_tuple(
     field: Type[Field], name: str, serializer_cls: Type["Serializer"]
 ) -> Tuple:
     getter = field.as_getter(name, serializer_cls)
     if getter is None:
-        getter = serializer_cls.default_getter(field.attr or name)
+        getter = serializer_cls._meta.default_getter(field.attr or name)
 
     # Only set a to_value function if it has been overridden for performance.
     to_value = None
@@ -36,23 +52,68 @@ def _compile_field_to_tuple(
     return (name, getter, to_value, field.call, field.required, field.getter_takes_serializer)
 
 
+def _compile_write_field_to_tuple(field, name, serializer_cls):
+    setter = field.as_setter(name, serializer_cls)
+    if setter is None:
+        setter = serializer_cls._meta.default_setter(field.attr or name)
+
+    # Only set a to_internal_value function if it has been overridden
+    # for performance.
+    to_internal_value = None
+    if field._is_to_internal_value_overridden():
+        to_internal_value = field.to_internal_value
+
+    return (
+        name,
+        setter,
+        to_internal_value,
+        field.call,
+        field.required,
+        field.setter_takes_serializer,
+    )
+
+
 class SerializerMeta(type):
     @staticmethod
-    def _get_fields(direct_fields: Dict, serializer_cls: Type["Serializer"]):
+    def _compile_meta(
+        direct_fields: dict,
+        serializer_meta: Type["SerializerMeta"],
+        serializer_cls: Type["Serializer"],
+    ):
         field_map = {}
+        meta_bases = ()
         # Get all the fields from base classes.
-        for cls in serializer_cls.__mro__[::-1]:
-            if issubclass(cls, SerializerBase):
-                field_map.update(cls._field_map)
+        for cls in serializer_cls.__bases__[::-1]:
+            if issubclass(cls, SerializerBase) and cls is not SerializerBase:
+                field_map.update(cls._meta._field_map)
+                meta_bases = meta_bases + (type(cls._meta),)
         field_map.update(direct_fields)
-        return field_map
+        if serializer_meta:
+            meta_bases = meta_bases + (serializer_meta,)
 
-    @staticmethod
-    def _compile_fields(field_map: Dict, serializer_cls: Type["Serializer"]):
-        return [
-            _compile_field_to_tuple(field, name, serializer_cls)
+        # get the right order of meta bases
+        meta_bases = meta_bases[::-1]
+
+        compiled_read_fields = [
+            _compile_read_field_to_tuple(field, name, serializer_cls)
             for name, field in field_map.items()
         ]
+
+        compiled_write_fields = [
+            _compile_write_field_to_tuple(field, name, serializer_cls)
+            for name, field in field_map.items()
+            if not field.read_only
+        ]
+
+        # automatically create an inner-class Meta that inherits from
+        # parent class's inner-class Meta
+        Meta = type("Meta", meta_bases, {})
+        meta = Meta()
+        meta._field_map = field_map
+        meta._compiled_read_fields = compiled_read_fields
+        meta._compiled_write_fields = compiled_write_fields
+
+        return meta
 
     def __new__(cls, name: str, bases: Tuple, attrs: Dict) -> Type["SerializerMeta"]:
         # Fields declared directly on the class.
@@ -65,13 +126,12 @@ class SerializerMeta(type):
         for k in direct_fields.keys():
             del attrs[k]
 
+        serializer_meta = attrs.pop("Meta", None)
+
         real_cls = super(SerializerMeta, cls).__new__(cls, name, bases, attrs)
 
-        field_map = cls._get_fields(direct_fields, real_cls)
-        compiled_fields = cls._compile_fields(field_map, real_cls)
+        real_cls._meta = cls._compile_meta(direct_fields, serializer_meta, real_cls)
 
-        real_cls._field_map = field_map
-        real_cls._compiled_fields = tuple(compiled_fields)
         return real_cls
 
 
@@ -101,8 +161,11 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         you can manually pass the context in and use it on the functions like as a runtime attribute
     """
 
-    #: The default getter used if :meth:`Field.as_getter` returns None.
-    default_getter = operator.attrgetter
+    class Meta:
+        model = None
+        #: The default getter used if :meth:`Field.as_getter` returns None.
+        default_getter = operator.attrgetter
+        default_setter = attrsetter
 
     def __init__(
         self,
@@ -112,13 +175,16 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         context: dict = None,
         **kwargs,
     ):
-        if data is not None:
-            raise RuntimeError("serpy serializers do not support input validation")
-
         super(Serializer, self).__init__(**kwargs)
-        self.instance = instance
+        self._can_serialize = instance is not None
+        self._can_deserialize = not self._can_serialize and data is not None
+        if self._can_serialize:
+            self._initial_instance = instance
+            self._data = None
+        elif self._can_deserialize:
+            self._initial_data = data
+            self._instance = None
         self.many = many
-        self._data = None
         self.context = context
 
     def _serialize(self, instance: Type[Any], fields: Tuple):
@@ -143,8 +209,23 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
 
         return v
 
+    def _deserialize(self, data, fields):
+        v = self._meta.model()
+        for name, setter, to_internal, call, required, pass_self in fields:
+            if pass_self:
+                setter(self, v, data[name])
+            else:
+                if required:
+                    value = data[name]
+                else:
+                    value = data.get(name)
+                if to_internal and (required or value is not None):
+                    value = to_internal(value)
+                setter(v, value)
+        return v
+
     def to_value(self, instance: Type[Any]) -> Union[Dict, List]:
-        fields: Tuple = self._compiled_fields
+        fields: Tuple = self._meta._compiled_read_fields
 
         if self.many:
             serialize = self._serialize
@@ -154,11 +235,18 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
             return [serialize(o, fields) for o in instance]
         return self._serialize(instance, fields)
 
+    def to_internal_value(self, data):
+        fields = self._meta._compiled_write_fields
+        if self.many:
+            deserialize = self._deserialize
+            return [deserialize(o, fields) for o in data]
+        return self._deserialize(data, fields)
+
     @classmethod
     def to_schema(cls: SerializerMeta, many: bool = False, *args, **kwargs) -> openapi.Response:
         properties = {}
-        maps = cls._field_map
-        for name, getter, *_ in cls._compiled_fields:
+        maps = cls._meta._field_map
+        for name, getter, *_ in cls._meta._compiled_read_fields:
             field = maps[name]
             if isinstance(field, Serializer):
                 # this is for using a blank serializer.Serializer class
@@ -241,8 +329,20 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         """
         # Cache the data for next time .data is called.
         if self._data is None:
-            self._data = self.to_value(self.instance)
+            self._data = self.to_value(self._initial_instance)
         return self._data
+
+    @property
+    def instance(self) -> Union[Type["self._meta.model"], List[Type["self._meta.model"]]]:
+        """Get the deserialized value from the `Serializer`.
+
+        The return value will be cached for future accesses.
+        """
+        # Cache the deserialized_value for next time .deserialized_value is
+        # called.
+        if self._instance is None:
+            self._instance = self.to_internal_value(self._initial_data)
+        return self._instance
 
 
 class DictSerializer(Serializer):
@@ -264,4 +364,5 @@ class DictSerializer(Serializer):
     ```
     """
 
-    default_getter = operator.itemgetter
+    class Meta:
+        default_getter = operator.itemgetter

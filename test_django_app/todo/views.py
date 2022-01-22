@@ -5,7 +5,11 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Comment, Post
 from .serializers import drf, serps
-from .serializers.serps import CommentSerializer, PaginationSerializer
+from .serializers.serps import (
+    CommentSerializer,
+    CommentSerializerWrite,
+    PaginationSerializer,
+)
 
 
 class PostViewSet(ModelViewSet):
@@ -51,5 +55,13 @@ class CommentViewSet(ModelViewSet):
         },
     )
     def list(self, request, *args, **kwargs):
-        self.serializer_class = serps.CommentSerializer
-        return super().list(request, *args, **kwargs)
+        qs = self.queryset.all()
+        serializer_class = serps.CommentSerializer(instance=qs, many=True)
+
+        return Response(serializer_class.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = CommentSerializerWrite(data=request.data, many=True)
+        comment_objs = serializer.instance
+
+        return Response(request.data)

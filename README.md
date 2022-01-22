@@ -8,6 +8,7 @@
 
 [![PyPI version](https://badge.fury.io/py/drf-serpy.svg)](https://badge.fury.io/py/drf-serpy)
 
+
 **drf-serpy** is a super simple object serialization framework built for speed. **drf-serpy** serializes complex datatypes (Django Models, custom classes, ...) to simple native types (dicts, lists, strings, ...). The native types can easily be converted to JSON or any other format needed.
 
 The goal of **drf-serpy** is to be able to do this *simply*, *reliably*, and *quickly*. Since serializers are class based, they can be combined, extended and customized with very little code duplication. This project aims to replace the DRF serializer in terms of *deserialization*.
@@ -30,6 +31,8 @@ Full documentation at: <https://drf-serpy.readthedocs.io/en/latest/>
 
 Installation
 ------------
+
+This project requires Python3.6+
 
 Note that this project is aimed for **Django Rest Framework** and does not intend to provide deserialization to other frameworks. Original [serpy](https://github.com/clarkduvall/serpy) repository can be used for such cases. This is mainly because of the added *drf-yasg* for swagger generation for the *drf-serpy serializers*.
 

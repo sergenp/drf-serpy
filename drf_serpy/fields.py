@@ -38,6 +38,13 @@ class Field(object):
     #: `Field.as_getter` requires the serializer to be passed in as the
     #: first argument. Otherwise, the object will be the only parameter.
     getter_takes_serializer = False
+
+    #: Set to ``True`` if the value function returned from
+    #: :meth:`Field.as_setter` requires the serializer to be passed in as the
+    #: first argument. Otherwise, the object will be the only parameter.
+    setter_takes_serializer = False
+
+    # schema_type needs to be overridden by the Fields
     schema_type = None
 
     def __init__(
@@ -46,12 +53,14 @@ class Field(object):
         call: bool = False,
         label: str = None,
         required: bool = True,
+        read_only: bool = False,
         schema_type: Type[openapi.Schema] = None,
     ):
         self.attr = attr
         self.call = call
         self.label = label
         self.required = required
+        self.read_only = read_only or call or (attr is not None and "." in attr)
         self.schema_type = schema_type or self.schema_type
 
     def to_value(self, value: Type[Any]) -> Union[dict, list, bool, str, int, float]:
@@ -76,6 +85,28 @@ class Field(object):
             return True
         return not getattr(to_value, "_serpy_base_implementation", False)
 
+    def to_internal_value(self, data: Type[Any]) -> Type[Any]:
+        """Transform the serialized value into Python object
+
+        Override this method to clean and validate values deserialized by this
+        field. For example to implement an `int` field:
+        ```py
+        def to_internal_value(self, data):
+            return data
+        ```
+        :param data: The data fetched from the object being deserialized.
+        """
+        return data
+
+    to_internal_value._serpy_base_implementation = True
+
+    def _is_to_internal_value_overridden(self) -> bool:
+        to_internal_value = self.to_internal_value
+        # If to_internal_value isn't a method, it must have been overridden.
+        if not isinstance(to_internal_value, types.MethodType):
+            return True
+        return not getattr(to_internal_value, "_serpy_base_implementation", False)
+
     def as_getter(self, serializer_field_name: str, serializer_cls: Type["Serializer"]):
         """Returns a function that fetches an attribute from an object.
 
@@ -90,6 +121,29 @@ class Field(object):
 
         If a `Field` has ``getter_takes_serializer = True``, then the
         getter returned from this method will be called with the
+        `Serializer` instance as the first argument, and the object
+        being serialized as the second.
+
+        :param str serializer_field_name: The name this field was assigned to
+            on the serializer.
+        :param serializer_cls: The `Serializer` this field is a part of.
+        """
+        return None
+
+    def as_setter(self, serializer_field_name: str, serializer_cls: Type["Serializer"]):
+        """Returns a function that sets an attribute on an object
+
+        Return ``None`` to use the default setter for the serializer defined in
+        :attr:`Serializer.default_setter`.
+
+        When a `Serializer` is defined, each `Field` will be
+        converted into a setter function using this method. During
+        deserialization, each setter will be called with the object being
+        deserialized with the argument passed as the return value of
+        :meth:`Field.to_internal_value`.
+
+        If a `Field` has ``setter_takes_serializer = True``, then the
+        setter returned from this method will be called with the
         `Serializer` instance as the first argument, and the object
         being serialized as the second.
 
@@ -116,6 +170,7 @@ class StrField(Field):
     """A `Field` that converts the value to a string."""
 
     to_value = staticmethod(str)
+    to_internal_value = staticmethod(str)
     schema_type = openapi.TYPE_STRING
 
 
@@ -123,6 +178,7 @@ class IntField(Field):
     """A `Field` that converts the value to an integer."""
 
     to_value = staticmethod(int)
+    to_internal_value = staticmethod(int)
     schema_type = openapi.TYPE_INTEGER
 
 
@@ -130,6 +186,7 @@ class FloatField(Field):
     """A `Field` that converts the value to a float."""
 
     to_value = staticmethod(float)
+    to_internal_value = staticmethod(float)
     schema_type = openapi.TYPE_NUMBER
 
 
@@ -137,6 +194,7 @@ class BoolField(Field):
     """A `Field` that converts the value to a boolean."""
 
     to_value = staticmethod(bool)
+    to_internal_value = staticmethod(bool)
     schema_type = openapi.TYPE_BOOLEAN
 
 
@@ -165,25 +223,34 @@ class MethodField(Field):
     """
 
     getter_takes_serializer = True
+    getter_takes_serializer = True
 
-    def __init__(self, method: str = None, **kwargs):
+    def __init__(self, getter: str = None, setter: str = None, **kwargs):
         assert (
             kwargs.pop("schema_type", None) is None
         ), f"MethodField doesn't take a schema_type param, use type annotations in your methods to generate schema"
         super(MethodField, self).__init__(**kwargs)
-        self.method = method
+        self.getter_method = getter
+        self.setter_method = setter
 
     def as_getter(self, serializer_field_name: str, serializer_cls: Type[Field]) -> Callable:
-        method_name = self.method
+        method_name = self.getter_method
         if method_name is None:
-            method_name = "get_{0}".format(serializer_field_name)
+            method_name = f"get_{serializer_field_name}"
         return getattr(serializer_cls, method_name)
+
+    def as_setter(self, serializer_field_name, serializer_cls):
+        method_name = self.setter_method
+        if method_name is None:
+            method_name = f"set_{serializer_field_name}"
+        return super().as_setter(serializer_field_name, serializer_cls)
 
 
 class ImageField(Field):
     """A `Field` that converts the value to a image url."""
 
     schema_type = openapi.TYPE_STRING
+    to_internal_value = staticmethod(str)
 
     def __init__(self, base_url: str = None, **kwargs):
         super().__init__(**kwargs)
@@ -202,6 +269,9 @@ class ImageField(Field):
 
 
 class ListField(Field):
+
+    to_internal_value = staticmethod(list)
+
     def __init__(self, field_attr: str, field_type: Type[Field], **kwargs):
         assert (
             field_type.schema_type is not None
@@ -240,6 +310,10 @@ class DateField(Field):
     def to_value(self, value: Union[datetime, time, date]) -> str:
         if value:
             return value.strftime(self.date_format)
+
+    def to_internal_value(self, value: str) -> datetime:
+        if value:
+            return datetime.strptime(value, self.date_format)
 
 
 class DateTimeField(DateField):
