@@ -1,5 +1,5 @@
 import operator
-from collections import Iterable
+from collections.abc import Iterable
 from typing import Any, Dict, List, Tuple, Type, Union
 
 from drf_yasg import openapi
