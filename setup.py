@@ -10,7 +10,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="drf-serpy",
-    version="0.4.4",
+    version="0.4.5",
     description="""ridiculously fast object serialization""",
     long_description_content_type="text/markdown",
     long_description=long_description,
