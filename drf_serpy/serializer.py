@@ -2,9 +2,8 @@ import operator
 from collections.abc import Iterable
 from typing import Any, Dict, List, Tuple, Type, Union
 
-from drf_yasg import openapi
-
 from drf_serpy.fields import Field, MethodField
+from drf_yasg import openapi
 
 SCHEMA_MAPPER = {
     str: openapi.TYPE_STRING,
@@ -148,9 +147,6 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
 
         if self.many:
             serialize = self._serialize
-            # django orm support for m2m fields
-            if getattr(instance, "iterator", None):
-                return [serialize(o, fields) for o in instance.iterator()]
             return [serialize(o, fields) for o in instance]
         return self._serialize(instance, fields)
 
