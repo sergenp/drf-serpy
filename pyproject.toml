@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drf-serpy"
-version = "0.4.6"
+version = "0.4.7"
 description = "Ridiculously fast object serialization"
 readme = "README.md"
 authors = ["Sergen Pekşen <speksen@kb01.ai>"]
