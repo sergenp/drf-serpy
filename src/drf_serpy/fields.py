@@ -169,11 +169,13 @@ class MethodField(Field):
     def __init__(self, method: str = None, **kwargs):
         assert (
             kwargs.pop("schema_type", None) is None
-        ), f"MethodField doesn't take a schema_type param, use type annotations in your methods to generate schema"
+        ), "MethodField doesn't take a schema_type param, use type annotations in your methods to generate schema"
         super(MethodField, self).__init__(**kwargs)
         self.method = method
 
-    def as_getter(self, serializer_field_name: str, serializer_cls: Type[Field]) -> Callable:
+    def as_getter(
+        self, serializer_field_name: str, serializer_cls: Type[Field]
+    ) -> Callable:
         method_name = self.method
         if method_name is None:
             method_name = "get_{0}".format(serializer_field_name)
@@ -193,8 +195,8 @@ class ImageField(Field):
         self.base_url = base_url
 
     def to_value(self, value: Union[Type[Any], str]) -> str:
-        # if given value has "url" attribute get the url from hat attribute
-        # (this happens if the ORM is Django, and the given `value`` is of type ImageFıeld)
+        # if given value has "url" attribute get the url from that attribute
+        # (this happens if the ORM is Django, and the given `value`` is of type ImageField)
         # otherwise get the value itself
         # (this happens if you used SQLAlchemy and recorded the image as a relative url to the db)
         url = getattr(value, "url", value)
@@ -217,7 +219,9 @@ class ListField(Field):
         :param list value: List of self.field_attrs or list of primitive types
         """
         if self.field_type == ImageField:
-            return [ImageField().to_value(getattr(v, self.field_attr, v)) for v in value]
+            return [
+                ImageField().to_value(getattr(v, self.field_attr, v)) for v in value
+            ]
         return [getattr(v, self.field_attr, v) for v in value]
 
     def get_schema(self) -> Type[openapi.Schema]:
