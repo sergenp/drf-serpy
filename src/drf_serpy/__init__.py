@@ -12,8 +12,8 @@ from drf_serpy.fields import (
 )
 from drf_serpy.serializer import DictSerializer, Serializer
 
-__version__ = "0.4.4"
-__author__ = "Clark DuVall, Sergen Pekşen"
+__version__ = "0.4.6"
+__author__ = "Sergen Pekşen"
 __license__ = "MIT"
 
 __all__ = [

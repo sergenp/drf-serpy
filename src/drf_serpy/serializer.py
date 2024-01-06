@@ -33,7 +33,14 @@ def _compile_field_to_tuple(
     # Set the field name to a supplied label; defaults to the attribute name.
     name = field.label or name
 
-    return (name, getter, to_value, field.call, field.required, field.getter_takes_serializer)
+    return (
+        name,
+        getter,
+        to_value,
+        field.call,
+        field.required,
+        field.getter_takes_serializer,
+    )
 
 
 class SerializerMeta(type):
@@ -155,7 +162,9 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         return self._serialize(instance, fields)
 
     @classmethod
-    def to_schema(cls: SerializerMeta, many: bool = False, *args, **kwargs) -> openapi.Response:
+    def to_schema(
+        cls: SerializerMeta, many: bool = False, *args, **kwargs
+    ) -> openapi.Response:
         properties = {}
         maps = cls._field_map
         for name, getter, *_ in cls._compiled_fields:

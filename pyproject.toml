@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "drf-serpy"
+version = "0.4.6"
+description = "Ridiculously fast object serialization"
+readme = "README.md"
+authors = ["Sergen Pekşen <speksen@kb01.ai>"]
+license = "MIT"
+keywords = [
+    "serialization",
+    "rest",
+    "json",
+    "api",
+    "marshal",
+    "marshalling",
+    "validation",
+    "schema",
+    "fast",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+exclude = [
+    "contrib",
+    "docs",
+    "tests",
+    "benchmarks",
+    "site",
+    "test_django_app",
+    "mkdocs.yml",
+]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+drf-yasg = "^1.20.0"
+
+[tool.poetry.group.dev.dependencies]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.extend-per-file-ignores]
+# Ignore unused imports in __init__.pys, which happens in sdks
+"__init__.py" = ["F401", "F403"]
