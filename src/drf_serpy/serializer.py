@@ -156,8 +156,8 @@ class Serializer(SerializerBase, metaclass=SerializerMeta):
         if self.many:
             serialize = self._serialize
             # django orm support for m2m fields
-            if getattr(instance, "iterator", None):
-                return [serialize(o, fields) for o in instance.iterator()]
+            if getattr(instance, "all", None):
+                return [serialize(o, fields) for o in instance.all()]
             return [serialize(o, fields) for o in instance]
         return self._serialize(instance, fields)
 
